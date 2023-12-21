@@ -35,9 +35,7 @@ class DioConsumer implements ApiConsumer {
     client.options.headers = headers;
     final response = await client.get(path, queryParameters: queryParameters);
     return handelResponseAsJson(response);
-    // } on DioException catch (error) {
-    //   handleDioError(error);
-    // }
+    
   }
 
   @override
