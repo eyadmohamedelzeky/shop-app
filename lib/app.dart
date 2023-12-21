@@ -5,6 +5,8 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:taskassginment/app/favourite_screen/domain/usecases/favourite_use_case.dart';
 import 'package:taskassginment/app/favourite_screen/presentation/cubit/favourite_screen_cubit.dart';
+import 'package:taskassginment/app/log_out/domain/usecases/log_out_use_case.dart';
+import 'package:taskassginment/app/log_out/presentation/cubit/log_out_cubit.dart';
 import 'package:taskassginment/app/search_product/domain/usecases/search_product_use_case.dart';
 import 'package:taskassginment/app/search_product/presentation/cubit/search_product_cubit.dart';
 import 'package:taskassginment/config/app_routes.dart';
@@ -28,8 +30,15 @@ class MyApp extends StatelessWidget {
                   favouriteUseCase: di<FavouriteUseCase>(),
                 )),
         BlocProvider(
-            create: (_) => SearchProductCubit(
-                searchProductUseCase: di<SearchProductUseCase>()))
+          create: (_) => SearchProductCubit(
+            searchProductUseCase: di<SearchProductUseCase>(),
+          ),
+        ),
+        BlocProvider(
+          create: (_) => LogOutCubit(
+            logoutUseCase: di<LogoutUseCase>(),
+          ),
+        ),
       ],
       child: ScreenUtilInit(
         child: MaterialApp.router(
