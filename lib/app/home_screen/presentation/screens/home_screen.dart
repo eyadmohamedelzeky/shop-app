@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:taskassginment/app/favourite_screen/presentation/screen/favourite_screen.dart';
+import 'package:taskassginment/app/favourite_screen/presentation/screens/favourite_screen.dart';
 import 'package:taskassginment/app/home_screen/domain/entities/product_response_entity.dart';
 import 'package:taskassginment/app/home_screen/domain/usecases/product_use_case.dart';
 import 'package:taskassginment/app/home_screen/presentation/cubit/home_screen_cubit.dart';
@@ -18,39 +18,21 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  List<DataResponeProductEntity> productsToShow = [];
+  TextEditingController searchProduct = TextEditingController();
+  List<DataResponeProductEntity> filterProducts(
+      String query, List<DataResponeProductEntity> products) {
+    query = searchController.text;
+    return products.where((product) {
+      return product.name.toLowerCase().contains(query.toLowerCase());
+    }).toList();
+  }
+
   TextEditingController searchController = TextEditingController();
-  List<ProductresponseEntity> favoriteProducts = [];
+
+  bool isFavorite = false;
   final products = ProductresponseEntity().data?.data;
-  // ProductresponseEntity? productresponseEntity;
-  // List<ProductresponseEntity> searchedProduct = [];
-  // void searchProduct(
-  //     String query, List<ProductresponseEntity> allProducts) {
-  //   searchedProduct = allProducts
-  //       .where((product) =>
-  //           product.data!.data![index].name
-  //               ?.toLowerCase()
-  //               .contains(query.toLowerCase()) ??
-  //           false)
-  //       .toList();
-  //   setState(() {});
-  // }
-  // void searchProduct(String query) {
-  //   searchedProduct = productresponseEntity?.data?.data
-  //           ?.where((product) =>
-  //               product.name!.toLowerCase().contains(query.toLowerCase()))
-  //           .toList() ??
-  //       [];
-  //   setState(() {
-  //     searchedProduct = productresponseEntity?.data?.data ?? [];
-  //   });
-  // }
-
-  // @override
-  // void initState() {
-  //   searchedProduct = productresponseEntity?.data?.data ?? [];
-  //   super.initState();
-  // }
-
+  final List<DataResponeProductEntity> favProduct = [];
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
@@ -58,12 +40,16 @@ class _HomeScreenState extends State<HomeScreen> {
         productUseCase: di<ProductUseCase>(),
       )..fetchProducts(),
       child: Scaffold(
-        backgroundColor: Colors.deepOrangeAccent,
+        backgroundColor: Colors.orangeAccent,
         appBar: AppBar(
           leading: IconButton(
             onPressed: () {
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => FavouriteScreen()));
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => FavouriteScreen(
+                            favouriteResponseEntity: favProduct,
+                          )));
             },
             icon: Icon(Icons.favorite_rounded),
           ),
@@ -86,17 +72,20 @@ class _HomeScreenState extends State<HomeScreen> {
             } else if (state is ProductsLoaded) {
               final products = state.productresponseEntity.data!.data!;
               final allProducts = state.productresponseEntity;
+              final filteredProducts =
+                  filterProducts(searchController.text, products);
               // final productsToShow =
               //    searchedProduct.isNotEmpty ? searchedProduct : products;
 
               return Column(
                 children: [
                   CustomTextFormField(
-                      onChanged: (value) {
-                        // searchProduct(value!, [allProducts]);
-                        // searchController.clear();
-                      },
                       textEditingController: searchController,
+                      onChanged: (value) {
+                        productsToShow = filterProducts(searchController.text,
+                            state.productresponseEntity.data!.data!);
+                        setState(() {});
+                      },
                       labelText: '',
                       hintText: 'search For Products'),
                   SizedBox(
@@ -104,45 +93,42 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   Expanded(
                     child: ListView.separated(
-                      // itemCount: productsToShow.length,
-                      itemCount: products.length,
+                      // itemCount: products.length,
+                      itemCount: filteredProducts.length,
+                      // searchController.text.isEmpty
+                      //     ? products.length
+                      //     : productsToShow.length,
                       separatorBuilder: (context, index) => SizedBox(
                         height: 20.h,
                       ),
                       itemBuilder: (context, index) {
                         final productloaded = state.productresponseEntity;
-                        // state.productresponseEntity.data!.data![index];
-                        return InkWell(
-                          onTap: () {
-                            // context.push(
-                            //   AppRouteName.productDetails,
-                            // );
-                            // context.push(
-                            //   AppRouteName.productDetails,
-                            //   extra: productloaded.data?.data?[index],
-                            // );
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => ProductDetailsScreen(
-                                    index: index,
-                                    product: ProductresponseEntity(
-                                        data: DataResponseEntity(
-                                      data: productloaded.data!.data!,
-                                    )),
-                                  ),
-                                ));
-                          },
-                          child: Container(
-                            margin: const EdgeInsets.symmetric(horizontal: 10),
-                            width: double.infinity,
-                            decoration: BoxDecoration(
-                                color: Colors.blueGrey,
-                                borderRadius: BorderRadius.circular(10.r)),
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                ClipRRect(
+
+                        return Container(
+                          margin: const EdgeInsets.symmetric(horizontal: 10),
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                              color: Colors.blueGrey,
+                              borderRadius: BorderRadius.circular(10.r)),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              InkWell(
+                                onTap: () {
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            ProductDetailsScreen(
+                                          index: index,
+                                          product: ProductresponseEntity(
+                                              data: DataResponseEntity(
+                                            data: productloaded.data!.data!,
+                                          )),
+                                        ),
+                                      ));
+                                },
+                                child: ClipRRect(
                                   borderRadius: BorderRadius.circular(10.r),
                                   child: Image.network(
                                     productloaded.data!.data![index].image,
@@ -152,66 +138,62 @@ class _HomeScreenState extends State<HomeScreen> {
                                     fit: BoxFit.cover,
                                   ),
                                 ),
-                                SizedBox(
-                                  height: 15.h,
-                                ),
-                                Text(
-                                  productloaded.data!.data![index].name ?? '',
-                                  //  productloaded.name ?? 'eyad',
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                      color: Colors.white, fontSize: 20.sp),
-                                ),
-                                SizedBox(
-                                  height: 15.h,
-                                ),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.end,
-                                  children: [
-                                    IconButton(
-                                      onPressed: () {
-                                        setState(() {
-                                          // Check if the product is in favorites
-                                          if (favoriteProducts.contains(
-                                              productloaded
-                                                  .data!.data![index].id)) {
-                                            // Remove from favorites
-                                            favoriteProducts.remove(
-                                                productloaded
-                                                    .data!.data![index].id);
-                                          } else {
-                                            // Add to favorites
-                                            favoriteProducts.add(productloaded
-                                                .data!.data![index].id);
-                                          }
-                                        });
-                                      },
-                                      icon: Icon(
-                                        favoriteProducts.contains(productloaded
-                                                .data!.data![index])
-                                            ? Icons.favorite
-                                            : Icons.favorite_border_outlined,
-                                        //Icons.favorite_border_outlined,
-                                        color: Colors.orange,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                Text(
-                                  'New Price : ${productloaded.data!.data![index].price} EGP',
-                                  // 'New Price: ${productloaded.price} EGP',
-                                  style: TextStyle(
-                                      color: Colors.green, fontSize: 15.sp),
-                                ),
-                                Text(
-                                  'discount: ${productloaded.data!.data![index].discount} %',
-                                  // 'discount: ${productloaded.discount} %',
-                                  style: TextStyle(
-                                      color: Colors.deepPurple,
-                                      fontSize: 15.sp),
-                                ),
-                              ],
-                            ),
+                              ),
+                              SizedBox(
+                                height: 15.h,
+                              ),
+                              Text(
+                                productloaded.data!.data![index].name ?? '',
+                                //  productloaded.name ?? 'eyad',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                    color: Colors.white, fontSize: 20.sp),
+                              ),
+                              SizedBox(
+                                height: 15.h,
+                              ),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  IconButton(
+                                    onPressed: () {
+                                      setState(() {
+                                        final currentProduct =
+                                            productloaded.data!.data![index];
+                                        if (favProduct
+                                            .contains(currentProduct)) {
+                                          favProduct.remove(currentProduct);
+                                        } else {
+                                          favProduct.add(currentProduct);
+                                        }
+                                      });
+                                    },
+                                    icon: favProduct.contains(
+                                            productloaded.data!.data![index])
+                                        ? Icon(
+                                            Icons.favorite_sharp,
+                                            color: Colors.red,
+                                          )
+                                        : Icon(
+                                            Icons.favorite_border_outlined,
+                                            color: Colors.white,
+                                          ),
+                                  )
+                                ],
+                              ),
+                              Text(
+                                'New Price : ${productloaded.data!.data![index].price} EGP',
+                                // 'New Price: ${productloaded.price} EGP',
+                                style: TextStyle(
+                                    color: Colors.green, fontSize: 15.sp),
+                              ),
+                              Text(
+                                'discount: ${productloaded.data!.data![index].discount} %',
+                                // 'discount: ${productloaded.discount} %',
+                                style: TextStyle(
+                                    color: Colors.deepPurple, fontSize: 15.sp),
+                              ),
+                            ],
                           ),
                         );
                       },
