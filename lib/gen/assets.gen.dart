@@ -32,11 +32,24 @@ class $AssetsLottieGen {
       [login, register, shop];
 }
 
+class $AssetsPngGen {
+  const $AssetsPngGen();
+
+  /// File path: assets/png/shop.png
+  AssetGenImage get shop =>
+      const AssetGenImage('assets/png/shop.png');
+
+  /// List of all assets
+  List<AssetGenImage> get values => [shop];
+}
+
 class MyAssets {
   MyAssets._();
 
   static const $AssetsLottieGen lottie =
       $AssetsLottieGen();
+  static const $AssetsPngGen png =
+      $AssetsPngGen();
 }
 
 class AssetGenImage {

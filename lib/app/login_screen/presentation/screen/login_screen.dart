@@ -126,17 +126,12 @@ class _LoginScreenState extends State<LoginScreen> {
                           textButton: context.localization.login,
                           onPressed: () async {
                             if (formKey.currentState!.validate()) {
-                              if (state is LoginScreenSuccess) {}
-                              formKey.currentState!.save();
+                              //formKey.currentState!.save();
                               await loginCubit.Login(
                                   loginRequestEntity: LoginRequestEntity(
                                 email: emailController.text,
                                 password: passwordController.text,
                               ));
-
-                              if (state is LoginScreenSuccess) {
-                                return context.goNamed(AppRouteName.homeScreen);
-                              }
                             }
                           }),
                       MultiBlocListener(
