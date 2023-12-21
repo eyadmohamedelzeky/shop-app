@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:taskassginment/app/home_screen/domain/entities/product_response_entity.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:url_launcher_platform_interface/url_launcher_platform_interface.dart';
 
-class ProductDetailsScreen extends StatelessWidget {
+class ProductDetailsScreen extends StatefulWidget {
   const ProductDetailsScreen({
     super.key,
     required this.product,
@@ -12,29 +12,35 @@ class ProductDetailsScreen extends StatelessWidget {
   });
   final ProductresponseEntity product;
   final int index;
+
+  @override
+  State<ProductDetailsScreen> createState() => _ProductDetailsScreenState();
+}
+
+class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
+  final UrlLauncherPlatform launcher = UrlLauncherPlatform.instance;
   @override
   Widget build(BuildContext context) {
-    Future<void> _launchMaps() async {
-      final Uri googleMapsUrl = Uri(path: '''
-https://www.google.com/maps/place/31%C2%B026'41.3%22N+31%C2%B039'55.8%22E/@31.4447977,31.6629373,17z/data=!3m1!4b1!4m4!3m3!8m2!3d31.4447977!4d31.6655122?entry=ttu
-'''
-          // 'https://www.google.com/maps/search/?api=1&query=31.444797667923186,31.665512167004664'
-          );
+    Future<void> openMap(double latitude, double longitude) async {
+      String googleUrl =
+          'https://www.google.com/maps/search/?api=1&query=$latitude,$longitude';
 
-      if (await canLaunchUrl(googleMapsUrl)) {
-        await launchUrl(googleMapsUrl);
+      if (await launcher.canLaunch(googleUrl)) {
+        await launcher.launchUrl(
+          googleUrl,
+          const LaunchOptions(mode: PreferredLaunchMode.externalApplication),
+        );
       } else {
-        throw 'Could not launch $googleMapsUrl';
+        throw 'Could not open the map.';
       }
     }
-
     return Scaffold(
         backgroundColor: Colors.deepOrangeAccent,
         floatingActionButton: FloatingActionButton(
           onPressed: () {},
           child: IconButton(
-              onPressed: () {
-                _launchMaps();
+              onPressed: () async {
+                await openMap(31.444797667923186, 31.665512167004664);
               },
               icon: Icon(FontAwesomeIcons.mapLocation)),
         ),
@@ -43,7 +49,7 @@ https://www.google.com/maps/place/31%C2%B026'41.3%22N+31%C2%B039'55.8%22E/@31.44
           backgroundColor: Colors.blueAccent,
           centerTitle: true,
           title: Text(
-            "${product.data?.data?[index].name}",
+            "${widget.product.data?.data?[widget.index].name}",
             maxLines: 3,
             textAlign: TextAlign.center,
             style: TextStyle(color: Colors.white),
@@ -68,7 +74,7 @@ https://www.google.com/maps/place/31%C2%B026'41.3%22N+31%C2%B039'55.8%22E/@31.44
                       ClipRRect(
                         borderRadius: BorderRadius.circular(10.r),
                         child: Image.network(
-                          product.data?.data?[index].image,
+                          widget.product.data?.data?[widget.index].image,
                           width: double.infinity,
                           height: 300.h,
                           fit: BoxFit.cover,
@@ -78,7 +84,7 @@ https://www.google.com/maps/place/31%C2%B026'41.3%22N+31%C2%B039'55.8%22E/@31.44
                         height: 15.h,
                       ),
                       Text(
-                        product.data?.data?[index].name ?? '',
+                        widget.product.data?.data?[widget.index].name ?? '',
                         textAlign: TextAlign.center,
                         style: TextStyle(color: Colors.white, fontSize: 20.sp),
                       ),
@@ -86,16 +92,16 @@ https://www.google.com/maps/place/31%C2%B026'41.3%22N+31%C2%B039'55.8%22E/@31.44
                         height: 15.h,
                       ),
                       Text(
-                        'New Price: ${product.data?.data?[index].price} EGP',
+                        'New Price: ${widget.product.data?.data?[widget.index].price} EGP',
                         style: TextStyle(color: Colors.green, fontSize: 15.sp),
                       ),
                       Text(
-                        'discount: ${product.data?.data?[index].discount} %',
+                        'discount: ${widget.product.data?.data?[widget.index].discount} %',
                         style: TextStyle(
                             color: Colors.deepPurple, fontSize: 15.sp),
                       ),
                       Text(
-                        'description: ${product.data?.data?[index].description}',
+                        'description: ${widget.product.data?.data?[widget.index].description}',
                         style: TextStyle(color: Colors.indigo, fontSize: 15.sp),
                       )
                     ],
