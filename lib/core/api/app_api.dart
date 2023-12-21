@@ -11,6 +11,9 @@ class AppApi {
   static const String contentType = 'application/json';
   static const String product = '${baseUrl}products';
   static const String favourite = "$product/favorites";
+  static const String location =
+      "${baseUrl}addresses?LatLang=31.444797667923186,31.665512167004664";
+  static const String search = "$product/search";
 }
 
 class ApiHeaders {
