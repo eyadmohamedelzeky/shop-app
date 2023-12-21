@@ -1,14 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:taskassginment/app/favourite_screen/presentation/screens/favourite_screen.dart';
 import 'package:taskassginment/app/home_screen/domain/entities/product_response_entity.dart';
 import 'package:taskassginment/app/home_screen/domain/usecases/product_use_case.dart';
 import 'package:taskassginment/app/home_screen/presentation/cubit/home_screen_cubit.dart';
+import 'package:taskassginment/app/log_out/domain/entities/logout_request_entity.dart';
+import 'package:taskassginment/app/log_out/presentation/cubit/log_out_cubit.dart';
 import 'package:taskassginment/app/product_details_screen/presentation/screen/product_details_screen.dart';
 import 'package:taskassginment/app/search_product/domain/entities/search_product_request_entity.dart';
 import 'package:taskassginment/app/search_product/presentation/cubit/search_product_cubit.dart';
+import 'package:taskassginment/config/routes_name.dart';
 import 'package:taskassginment/core/commen_widget/custom_text_form_field.dart';
+import 'package:taskassginment/core/const/cache_string.dart';
 import 'package:taskassginment/core/di/di.dart';
 import 'package:taskassginment/core/localization/localization.dart';
 
@@ -30,8 +36,15 @@ class _HomeScreenState extends State<HomeScreen> {
         productUseCase: di<ProductUseCase>(),
       )..fetchProducts(),
       child: Scaffold(
-        floatingActionButton: FloatingActionButton(
-            onPressed: () {}, child: Icon(Icons.logout_rounded)),
+        floatingActionButton: BlocBuilder<LogOutCubit, LogOutState>(
+          builder: (context, state) {
+            return FloatingActionButton(
+                onPressed: () async {
+                  BlocProvider.of<LogOutCubit>(context).logOut();
+                },
+                child: Icon(Icons.logout_rounded));
+          },
+        ),
         backgroundColor: Colors.orangeAccent,
         appBar: AppBar(
           leading: IconButton(
@@ -259,6 +272,15 @@ class _HomeScreenState extends State<HomeScreen> {
                             },
                           ),
                         ),
+                  MultiBlocListener(listeners: [
+                    BlocListener<LogOutCubit, LogOutState>(
+                        listener: (context, state) {
+                      if (state is LogOutSuccess) {
+                        di<SharedPreferences>().remove(CacheString.authToken);
+                        context.goNamed(AppRouteName.loginScreen);
+                      }
+                    })
+                  ], child: Container())
                 ],
               );
             }
