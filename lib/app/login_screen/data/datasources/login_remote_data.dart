@@ -5,6 +5,7 @@ import 'package:taskassginment/app/login_screen/data/models/login_response_model
 import 'package:taskassginment/app/login_screen/domain/entities/login_request_entity.dart';
 import 'package:taskassginment/core/api/api_consumer.dart';
 import 'package:taskassginment/core/api/app_api.dart';
+
 abstract interface class LoginRemoteData {
   Future<LoginResponseModel> login(
       {required LoginRequestEntity loginRequestEntity});
@@ -23,13 +24,17 @@ class LoginRemoteDataImpl implements LoginRemoteData {
       email: loginRequestEntity.email,
       password: loginRequestEntity.password,
     ).toJson();
+    // final headers = {
+    //   CacheString.authToken: LoginResponseEntity().data!.token ?? '',
+    // };
     final response = await apiConsumer.post(
       path: AppApi.login,
       body: loginBody,
+      //headers: headers,
     );
     // final token = di<SharedPreferences>()
     //     .setString(CacheString.authToken, response['data']['api_token']);
-   // debugPrint('The Token From Remote is $token');
+    // debugPrint('The Token From Remote is $token');
     debugPrint('The Response is $response');
     return LoginResponseModel.fromJson(response);
   }
