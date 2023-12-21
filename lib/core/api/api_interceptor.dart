@@ -1,15 +1,28 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:injectable/injectable.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:taskassginment/core/api/app_api.dart';
+import 'package:taskassginment/core/const/cache_string.dart';
+import 'package:taskassginment/core/di/di.dart';
 
 @injectable
 class AppInterceptors extends Interceptor {
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
     debugPrint('REQUEST[${options.method}] => PATH: ${options.path}');
-// final cachedAuthToken =
-//       di<SharedPreferences>().getString(CacheString.authToken);
-//     debugPrint('The Cache Token Is $cachedAuthToken');
+    final cachedAuthToken =
+        di<SharedPreferences>().getString(CacheString.authToken);
+    debugPrint('The Cache Token Is $cachedAuthToken');
+    if (cachedAuthToken == null) {}
+    else{
+      final headers = {
+      'lang': AppApi.lang,
+      'Content-Type': AppApi.contentType,
+      'Authorization': '$cachedAuthToken'
+    };
+    }
+
 //     final headers = {
 //       'lang': AppApi.lang,
 //       'Content-Type': AppApi.contentType,
