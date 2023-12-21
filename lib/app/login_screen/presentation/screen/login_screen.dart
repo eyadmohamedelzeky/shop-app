@@ -6,7 +6,9 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lottie/lottie.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:taskassginment/app/login_screen/data/models/login_response_model.dart';
 import 'package:taskassginment/app/login_screen/domain/entities/login_request_entity.dart';
+import 'package:taskassginment/app/login_screen/domain/entities/login_response_entity.dart';
 import 'package:taskassginment/app/login_screen/domain/usecases/login_use_case.dart';
 import 'package:taskassginment/app/login_screen/presentation/cubit/login_screen_cubit.dart';
 import 'package:taskassginment/app/register_screen/presentation/cubit/register_screen_cubit.dart';
@@ -147,7 +149,8 @@ class _LoginScreenState extends State<LoginScreen> {
                                   toastLength: Toast.LENGTH_LONG,
                                   backgroundColor: Colors.green);
                               context.goNamed(AppRouteName.homeScreen);
-                            } else if (state is LoginScreenFailure) {
+                            } 
+                            else if (state is LoginScreenFailure) {
                               Fluttertoast.showToast(
                                   msg: state.message,
                                   toastLength: Toast.LENGTH_LONG,
