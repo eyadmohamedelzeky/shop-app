@@ -10,7 +10,10 @@ class AppApi {
   static const String lang = 'ar';
   static const String contentType = 'application/json';
   static const String product = '${baseUrl}products';
+  static const String favourite = "$product/favorites";
 }
-class ApiHeaders{
- static String token = di<SharedPreferences>().getString(CacheString.authToken)!;
+
+class ApiHeaders {
+  static String token =
+      di<SharedPreferences>().getString(CacheString.authToken)!;
 }
