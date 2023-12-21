@@ -2,16 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lottie/lottie.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:taskassginment/app/login_screen/domain/entities/login_request_entity.dart';
 import 'package:taskassginment/app/login_screen/domain/usecases/login_use_case.dart';
 import 'package:taskassginment/app/login_screen/presentation/cubit/login_screen_cubit.dart';
+import 'package:taskassginment/app/register_screen/presentation/cubit/register_screen_cubit.dart';
 import 'package:taskassginment/config/routes_name.dart';
 import 'package:taskassginment/core/commen_cubits/vaild_emil_cubit/vaild_email_cubit.dart';
 import 'package:taskassginment/core/commen_cubits/visiable_password_cubit/cubit/visiable_password_cubit.dart';
 import 'package:taskassginment/core/commen_widget/custom_raw_button.dart';
 import 'package:taskassginment/core/commen_widget/custom_text_form_field.dart';
+import 'package:taskassginment/core/const/cache_string.dart';
 import 'package:taskassginment/core/di/di.dart';
 import 'package:taskassginment/core/localization/localization.dart';
 import 'package:taskassginment/gen/assets.gen.dart';
@@ -39,7 +43,6 @@ class _LoginScreenState extends State<LoginScreen> {
               child: BlocBuilder<LoginScreenCubit, LoginScreenState>(
                 builder: (context, state) {
                   final loginCubit = BlocProvider.of<LoginScreenCubit>(context);
-
                   return ListView(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 20,
@@ -123,6 +126,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           textButton: context.localization.login,
                           onPressed: () async {
                             if (formKey.currentState!.validate()) {
+                              if (state is LoginScreenSuccess) {}
                               formKey.currentState!.save();
                               await loginCubit.Login(
                                   loginRequestEntity: LoginRequestEntity(
@@ -134,7 +138,30 @@ class _LoginScreenState extends State<LoginScreen> {
                                 return context.goNamed(AppRouteName.homeScreen);
                               }
                             }
-                          })
+                          }),
+                      MultiBlocListener(
+                        listeners: [
+                          BlocListener<LoginScreenCubit, LoginScreenState>(
+                              listener: (context, state) async {
+                            if (state is LoginScreenSuccess) {
+                              final token = await di<SharedPreferences>()
+                                  .setString(CacheString.authToken,
+                                      state.loginResponseEntity.data!.token!);
+                              Fluttertoast.showToast(
+                                  msg: state.loginResponseEntity.message!,
+                                  toastLength: Toast.LENGTH_LONG,
+                                  backgroundColor: Colors.green);
+                              context.goNamed(AppRouteName.homeScreen);
+                            } else if (state is LoginScreenFailure) {
+                              Fluttertoast.showToast(
+                                  msg: state.message,
+                                  toastLength: Toast.LENGTH_LONG,
+                                  backgroundColor: Colors.red);
+                            }
+                          }),
+                        ],
+                        child: Container(),
+                      )
                     ],
                   );
                 },

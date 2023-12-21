@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lottie/lottie.dart';
 import 'package:taskassginment/app/register_screen/domain/entities/resgister_request_entity.dart';
@@ -53,13 +54,9 @@ class RegisterScreen extends StatelessWidget {
                         validator: (valueVaild) {
                           if (valueVaild == null || valueVaild.isEmpty) {
                             return context.localization.name_empty;
-                          }else if (BlocProvider.of<VaildEmailCubit>(
-                                      context)
-                                  .isValidEmail(valueVaild)) {
-                                return null;
-                              } else {
-                                return context.localization.email_invalid;
-                              }
+                          } else {
+                            return null;
+                          }
                         },
                         textEditingController: nameController,
                         labelText: context.localization.name,
@@ -73,7 +70,7 @@ class RegisterScreen extends StatelessWidget {
                         validator: (valueVaild) {
                           if (valueVaild == null || valueVaild.isEmpty) {
                             return context.localization.phone_empty;
-                          } else if(valueVaild.length<11){
+                          } else if (valueVaild.length < 11) {
                             return context.localization.phone_invalid;
                           }
                           return null;
@@ -108,7 +105,6 @@ class RegisterScreen extends StatelessWidget {
                           final passwordVisiable =
                               BlocProvider.of<VisiablePasswordCubit>(context);
                           return CustomTextFormField(
-                           
                             validator: (valueVaild) {
                               if (valueVaild == null || valueVaild.isEmpty) {
                                 return context.localization.password_empty;
@@ -162,12 +158,26 @@ class RegisterScreen extends StatelessWidget {
                               name: nameController.text,
                               phone: phoneController.text,
                             ));
-                            state is RegisterScreenSuccess
-                                ? context.go(AppRouteName.loginScreen)
-                                : null;
                           }
                         },
                       ),
+                      MultiBlocListener(listeners: [
+                        BlocListener<RegisterScreenCubit, RegisterScreenState>(
+                            listener: (context, state) {
+                          if (state is RegisterScreenSuccess) {
+                            Fluttertoast.showToast(
+                                msg: state.registerResponseEntity.message!,
+                                toastLength: Toast.LENGTH_LONG,
+                                backgroundColor: Colors.green);
+                            context.goNamed(AppRouteName.loginScreen);
+                          } else if (state is RegisterScreenError) {
+                            Fluttertoast.showToast(
+                                msg: state.message,
+                                toastLength: Toast.LENGTH_LONG,
+                                backgroundColor: Colors.red);
+                          }
+                        })
+                      ], child: Container()),
                       SizedBox(
                         height: 20.h,
                       )
