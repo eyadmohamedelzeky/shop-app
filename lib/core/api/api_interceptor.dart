@@ -1,31 +1,23 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:injectable/injectable.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:taskassginment/app/login_screen/domain/entities/login_response_entity.dart';
-import 'package:taskassginment/core/api/app_api.dart';
-import 'package:taskassginment/core/const/cache_string.dart';
-import 'package:taskassginment/core/di/di.dart';
 
 @injectable
 class AppInterceptors extends Interceptor {
-  // final cachedAppApiKey = di<SharedPreferences>().getString(
-  //   CacheString.authToken,
-  // );
-
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
     debugPrint('REQUEST[${options.method}] => PATH: ${options.path}');
-    
-
-    //debugPrint('The Cache Token Is $token');
-    final headers = {
-      'lang': AppApi.lang,
-      'Content-Type': AppApi.contentType,
-    };
+// final cachedAuthToken =
+//       di<SharedPreferences>().getString(CacheString.authToken);
+//     debugPrint('The Cache Token Is $cachedAuthToken');
+//     final headers = {
+//       'lang': AppApi.lang,
+//       'Content-Type': AppApi.contentType,
+//       'Authorization': '$cachedAuthToken'
+//     };
     //debugPrint('The Cached Token is $cacheToken');
-   // debugPrint('The token Is $token');
-    options.headers.addAll(headers);
+    // debugPrint('The token Is $token');
+    // options.headers.addAll(headers);
 
     super.onRequest(options, handler);
   }
