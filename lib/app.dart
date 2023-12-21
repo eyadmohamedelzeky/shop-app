@@ -5,6 +5,8 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:taskassginment/app/favourite_screen/domain/usecases/favourite_use_case.dart';
 import 'package:taskassginment/app/favourite_screen/presentation/cubit/favourite_screen_cubit.dart';
+import 'package:taskassginment/app/search_product/domain/usecases/search_product_use_case.dart';
+import 'package:taskassginment/app/search_product/presentation/cubit/search_product_cubit.dart';
 import 'package:taskassginment/config/app_routes.dart';
 import 'package:taskassginment/core/commen_cubits/vaild_emil_cubit/vaild_email_cubit.dart';
 import 'package:taskassginment/core/commen_cubits/visiable_password_cubit/cubit/visiable_password_cubit.dart';
@@ -25,6 +27,9 @@ class MyApp extends StatelessWidget {
             create: (_) => FavouriteScreenCubit(
                   favouriteUseCase: di<FavouriteUseCase>(),
                 )),
+        BlocProvider(
+            create: (_) => SearchProductCubit(
+                searchProductUseCase: di<SearchProductUseCase>()))
       ],
       child: ScreenUtilInit(
         child: MaterialApp.router(
