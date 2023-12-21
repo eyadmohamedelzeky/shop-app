@@ -20,6 +20,7 @@ class _FavouriteScreenState extends State<FavouriteScreen> {
         title: Text('Favourite Products'),
       ),
       body: ListView.separated(
+        padding: EdgeInsets.only(top: 20.h, bottom: 20.h),
         itemCount: widget.favouriteResponseEntity.length,
         separatorBuilder: (context, index) => SizedBox(
           height: 20.h,
