@@ -1,5 +1,5 @@
 import 'package:go_router/go_router.dart';
-import 'package:taskassginment/app/favourite_screen/presentation/screen/favourite_screen.dart';
+import 'package:taskassginment/app/favourite_screen/presentation/screens/favourite_screen.dart';
 import 'package:taskassginment/app/home_screen/domain/entities/product_response_entity.dart';
 import 'package:taskassginment/app/home_screen/presentation/screens/home_screen.dart';
 import 'package:taskassginment/app/login_screen/presentation/screen/login_screen.dart';
@@ -41,10 +41,10 @@ final router = GoRouter(
         product: ProductresponseEntity(),
       ),
     ),
-    GoRoute(
-      path: AppRouteName.favouriteProducts,
-      name: AppRouteName.favouriteProducts,
-      builder: (context, state) => const FavouriteScreen(),
-    )
+    // GoRoute(
+    //   path: AppRouteName.favouriteProducts,
+    //   name: AppRouteName.favouriteProducts,
+    //   builder: (context, state) => const FavouriteScreen(),
+    // ),
   ],
 );
