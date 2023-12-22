@@ -64,9 +64,7 @@ class DioConsumer implements ApiConsumer {
     final response =
         await client.put(path, queryParameters: queryParameters, data: body);
     return handelResponseAsJson(response);
-    // } on DioException catch (error) {
-    //   handleDioError(error);
-    // }
+  
   }
 }
 
@@ -85,7 +83,6 @@ class DioHandlerExc implements Exception {
     }
   }
 }
-
 Failure? _handleError(DioException exception) {
   switch (exception.type) {
     case DioExceptionType.connectionTimeout:
@@ -93,7 +90,6 @@ Failure? _handleError(DioException exception) {
     case DioExceptionType.receiveTimeout:
     case DioExceptionType.badResponse:
       final statusCode = exception.response?.statusCode;
-
       debugPrint('Status Code: $statusCode');
       switch (statusCode) {
         case StatusCode.badRequest:

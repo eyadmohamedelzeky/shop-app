@@ -3,13 +3,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:taskassginment/app/favourite_screen/presentation/screens/favourite_screen.dart';
 import 'package:taskassginment/app/home_screen/domain/entities/product_response_entity.dart';
 import 'package:taskassginment/app/home_screen/domain/usecases/product_use_case.dart';
 import 'package:taskassginment/app/home_screen/presentation/cubit/home_screen_cubit.dart';
-import 'package:taskassginment/app/log_out/domain/entities/logout_request_entity.dart';
+import 'package:taskassginment/app/home_screen/presentation/widgets/icon_button_favourite.dart';
+import 'package:taskassginment/app/home_screen/presentation/widgets/product_tap_item.dart';
+import 'package:taskassginment/app/home_screen/presentation/widgets/search_product.dart';
 import 'package:taskassginment/app/log_out/presentation/cubit/log_out_cubit.dart';
-import 'package:taskassginment/app/product_details_screen/presentation/screen/product_details_screen.dart';
 import 'package:taskassginment/app/search_product/domain/entities/search_product_request_entity.dart';
 import 'package:taskassginment/app/search_product/presentation/cubit/search_product_cubit.dart';
 import 'package:taskassginment/config/routes_name.dart';
@@ -47,17 +47,7 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         backgroundColor: Colors.orangeAccent,
         appBar: AppBar(
-          leading: IconButton(
-            onPressed: () {
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => FavouriteScreen(
-                            favouriteResponseEntity: favProduct,
-                          )));
-            },
-            icon: Icon(Icons.favorite_rounded),
-          ),
+          leading: IconButtonFavourite(favProduct: favProduct),
           backgroundColor: Colors.pinkAccent,
           centerTitle: true,
           title: Text(
@@ -95,73 +85,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     height: 20.h,
                   ),
                   searchProduct.text.isNotEmpty
-                      ? Expanded(
-                          child: BlocBuilder<SearchProductCubit,
-                              SearchProductState>(
-                            builder: (context, state) {
-                              if (state is SearchProductLoading) {
-                                return Center(
-                                  child: CircularProgressIndicator.adaptive(),
-                                );
-                              } else if (state is SearchProductLoaded) {
-                                final filterproduct =
-                                    state.searchProductEntity.data?.data;
-                                return ListView.separated(
-                                  itemBuilder: (context, index) {
-                                    return Container(
-                                      margin: const EdgeInsets.symmetric(
-                                          horizontal: 10),
-                                      width: double.infinity,
-                                      decoration: BoxDecoration(
-                                          color: Colors.blueGrey,
-                                          borderRadius:
-                                              BorderRadius.circular(10.r)),
-                                      child: Column(
-                                        children: [
-                                          ClipRRect(
-                                            borderRadius:
-                                                BorderRadius.circular(10.r),
-                                            child: Image.network(
-                                              filterproduct?[index].image,
-                                              width: double.infinity,
-                                              height: 300.h,
-                                              fit: BoxFit.cover,
-                                            ),
-                                          ),
-                                          SizedBox(
-                                            height: 15.h,
-                                          ),
-                                          Text(
-                                            filterproduct![index].name ?? '',
-                                            textAlign: TextAlign.center,
-                                            style: TextStyle(
-                                                color: Colors.white,
-                                                fontSize: 20.sp),
-                                          ),
-                                          SizedBox(
-                                            height: 15.h,
-                                          ),
-                                          Text(
-                                            'New Price : ${filterproduct[index].price} EGP',
-                                            style: TextStyle(
-                                                color: Colors.green,
-                                                fontSize: 15.sp),
-                                          ),
-                                        ],
-                                      ),
-                                    );
-                                  },
-                                  itemCount: filterproduct?.length ?? 0,
-                                  separatorBuilder: (context, index) =>
-                                      SizedBox(
-                                    height: 10.h,
-                                  ),
-                                );
-                              }
-                              return Container();
-                            },
-                          ),
-                        )
+                      ? SearchProduct()
                       : Expanded(
                           child: ListView.separated(
                             itemCount: products.length,
@@ -177,38 +101,13 @@ class _HomeScreenState extends State<HomeScreen> {
                                 decoration: BoxDecoration(
                                     color: Colors.blueGrey,
                                     borderRadius: BorderRadius.circular(10.r)),
-                                child: Column(
+                                child: 
+                                Column(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    InkWell(
-                                      onTap: () {
-                                        Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder: (context) =>
-                                                  ProductDetailsScreen(
-                                                index: index,
-                                                product: ProductresponseEntity(
-                                                    data: DataResponseEntity(
-                                                  data:
-                                                      productloaded.data!.data!,
-                                                )),
-                                              ),
-                                            ));
-                                      },
-                                      child: ClipRRect(
-                                        borderRadius:
-                                            BorderRadius.circular(10.r),
-                                        child: Image.network(
-                                          productloaded
-                                              .data!.data![index].image,
-                                          // productloaded.image,
-                                          width: double.infinity,
-                                          height: 300.h,
-                                          fit: BoxFit.cover,
-                                        ),
-                                      ),
-                                    ),
+                                    ProductTapItem(
+                                        index: index,
+                                        productloaded: productloaded),
                                     SizedBox(
                                       height: 15.h,
                                     ),
@@ -252,7 +151,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                       .favorite_border_outlined,
                                                   color: Colors.white,
                                                 ),
-                                        )
+                                        ),
                                       ],
                                     ),
                                     Text(
@@ -272,15 +171,20 @@ class _HomeScreenState extends State<HomeScreen> {
                             },
                           ),
                         ),
-                  MultiBlocListener(listeners: [
-                    BlocListener<LogOutCubit, LogOutState>(
+                  MultiBlocListener(
+                    listeners: [
+                      BlocListener<LogOutCubit, LogOutState>(
                         listener: (context, state) {
-                      if (state is LogOutSuccess) {
-                        di<SharedPreferences>().remove(CacheString.authToken);
-                        context.goNamed(AppRouteName.loginScreen);
-                      }
-                    })
-                  ], child: Container())
+                          if (state is LogOutSuccess) {
+                            di<SharedPreferences>()
+                                .remove(CacheString.authToken);
+                            context.goNamed(AppRouteName.loginScreen);
+                          }
+                        },
+                      ),
+                    ],
+                    child: Container(),
+                  ),
                 ],
               );
             }
